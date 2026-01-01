@@ -1,8 +1,13 @@
+"use client";
 import image from 'next/image';
+import Link from "next/link";
 
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
+  const router = useRouter();
   return (
+    
     <>
       <nav className="bg-white h-16 shadow-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto h-full flex justify-between items-center px-4">
@@ -30,7 +35,9 @@ export default function HomePage() {
 
       
       <div className="absolute top-20 right-6 z-40">
+      
         <button
+        onClick={() => router.push("/login")}
           className="px-10 py-3 rounded-xl text-lg font-semibold
           text-gray-900 border-2 
           hover:bg-amber-600 hover:text-white hover:scale-105
