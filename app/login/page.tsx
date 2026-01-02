@@ -1,6 +1,11 @@
 "use client";
-import image from 'next/image';
+import Image from "next/image";
+
+import { useRouter } from "next/navigation";
+
 export default function LoginPage() {
+    const router = useRouter();
+  
     return(
         <>
         <div className="bg-white min-h-screen flex items-center justify-center font-sans mt-10 mb-10">
@@ -59,7 +64,7 @@ export default function LoginPage() {
       <input type="checkbox" className="accent-amber-500"/>
       Remember me
     </label>
-    <a href="#" className="text-amber-600 hover:underline">
+    <a href="/forgot" className="text-amber-600 hover:underline">
       Forgot password?
     </a>
   </div>
@@ -78,7 +83,7 @@ export default function LoginPage() {
 
 <p className="text-center text-slate-600 mt-6">
   Don’t have an account?
-  <a href="#" className="text-amber-600 font-semibold hover:underline">
+  <a href="/signup" className="text-amber-600 font-semibold hover:underline">
     Sign up
   </a>
 </p>
