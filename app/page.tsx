@@ -63,37 +63,61 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-24 bg-white">
-        <div
-          className="bg-white rounded-2xl shadow-xl
-                     hover:shadow-2xl hover:-translate-y-2
-                     transition-all duration-300 border-2 border-amber-200"
-        >
-          <img
-            src="https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?auto=format&fit=crop&w=1200&q=80"
-            alt="E-learning / Quiz"
-            className="w-full h-32 object-cover rounded-t-2xl"
-          />
-
-          <div className="p-6 text-center">
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">
-              Start a Quiz
-            </h2>
-            <p className="text-slate-600 text-lg mb-5">
-              Quickly design your quizzes. Select questions, mark correct answers,
-              set quiz time, and share with students or friends instantly.
-            </p>
-            <button
-              className="bg-amber-600 text-white px-12 py-4 rounded-xl
-                         text-xl font-semibold
-                         hover:bg-amber-600 hover:scale-105
-                         transition"
-            >
-              Start Quiz
-            </button>
-          </div>
+      <div className="max-w-5xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-2 gap-0">
+      
+      <div className="bg-white rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-amber-200 max-w-md mx-auto">
+        <img
+          src="/images/quiz.jpg"
+          alt="E-learning / Quiz"
+          className="w-full h-48 object-cover rounded-t-2xl"
+        />
+        <div className="p-6 text-center">
+          <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">
+            Start a Quiz
+          </h2>
+          <p className="text-slate-600 text-base md:text-lg mb-4">
+            Quickly design your quizzes. Select questions, mark correct answers,
+            set quiz time, and share with students or friends instantly.
+          </p>
+          <button
+            className="bg-amber-600 text-white px-10 py-3 md:px-12 md:py-4 rounded-xl
+                       text-lg md:text-xl font-semibold
+                       hover:bg-amber-700 hover:scale-105
+                       transition"
+          >
+            Start Quiz
+          </button>
         </div>
       </div>
+
+      
+      <div className="bg-white rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-amber-200 max-w-md mx-auto">
+        <img
+          src="/images/pre.jpg"
+          alt="Student Prediction"
+          className="w-full h-48 object-cover rounded-t-2xl"
+        />
+        <div className="p-6 text-center">
+          <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">
+            Make a Prediction
+          </h2>
+          <p className="text-slate-600 text-base md:text-lg mb-4">
+            Predict student performance based on study hours, attendance,
+            past scores, and other details quickly and easily.
+          </p>
+          <button
+          onClick={() => router.push("/prediction")}
+            className="bg-amber-600 text-white px-10 py-3 md:px-12 md:py-4 rounded-xl
+                       text-lg md:text-xl font-semibold
+                       hover:bg-amber-700 hover:scale-105
+                       transition"
+          >
+            Make Prediction
+          </button>
+        </div>
+      </div>
+
+    </div>
 
       
       <div id="about" className="bg-white py-20 px-4 text-center">
