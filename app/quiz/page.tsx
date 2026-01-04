@@ -36,11 +36,11 @@ export default function QuizPage() {
   const resultsTableRef = useRef<HTMLTableSectionElement>(null);
 
   const [questionsCache, setQuestionsCache] = useState<any[]>([]);
-  let quizId: string | null = null;
-  let quizTimeValue = 0;
-  let studentId: string | null = null;
-  let timerInt: NodeJS.Timeout;
-  let timeLeft = 0;
+  const quizIdRef = useRef<string | null>(null);
+const quizTimeRefValue = useRef<number>(0);
+const studentIdRef = useRef<string | null>(null);
+const timerRefInt = useRef<NodeJS.Timeout | null>(null);
+const timeLeftRef = useRef<number>(0);
 
   // -------------------- TEACHER FUNCTIONS --------------------
   const addQuestion = () => {
@@ -92,13 +92,14 @@ export default function QuizPage() {
     try {
       const { data: quiz } = await supabaseClient.from("quizze").insert([{ name, time }]).select().single();
       if (!quiz) throw new Error("Quiz creation failed");
-      quizId = quiz.id;
-      quizTimeValue = quiz.time;
+      quizIdRef.current = quiz.id;
+      quizTimeRefValue.current = quiz.time;
+
       const tempQuestions: any[] = [];
 
       for (const q of Array.from(questionsDiv.children)) {
         const payload = {
-          quiz_id: quizId,
+          quiz_id: quizIdRef.current,
           question: q.querySelector<HTMLInputElement>(".q")?.value.trim(),
           option_a: q.querySelector<HTMLInputElement>(".a")?.value.trim(),
           option_b: q.querySelector<HTMLInputElement>(".b")?.value.trim(),
@@ -117,7 +118,7 @@ export default function QuizPage() {
         qrCodeRef.current.innerHTML = "";
         const canvas = document.createElement("canvas");
         qrCodeRef.current.appendChild(canvas);
-        QRCode.toCanvas(canvas, `${location.origin}${location.pathname}?id=${quizId}`, { width: 220 });
+        QRCode.toCanvas(canvas, `${location.origin}${location.pathname}?id=${quizIdRef.current}`, { width: 220 });
       }
 
       alert("Quiz generated successfully!");
@@ -129,19 +130,45 @@ export default function QuizPage() {
 
   // -------------------- STUDENT FUNCTIONS --------------------
   const startQuiz = async () => {
-    if (!studentNameRef.current?.value || !rollNoRef.current?.value) { alert("Enter student details"); return; }
-
-    const { data: stu } = await supabaseClient.from("students").insert([{ name: studentNameRef.current.value, roll_no: rollNoRef.current.value }]).select().single();
+    if (!studentNameRef.current?.value || !rollNoRef.current?.value) {
+      alert("Enter student details");
+      return;
+    }
+  
+    if (!quizIdRef.current) {
+      alert("Quiz ID missing. Generate quiz again.");
+      return;
+    }
+  
+    const { data: stu } = await supabaseClient
+      .from("students")
+      .insert([
+        {
+          name: studentNameRef.current.value,
+          roll_no: rollNoRef.current.value,
+        },
+      ])
+      .select()
+      .single();
+  
     if (!stu) return;
-    studentId = stu.id;
-
-    const { data: qs } = await supabaseClient.from("questions").select("*").eq("quiz_id", quizId);
-    setQuestionsCache(qs || []);
-    if (!qs || qs.length === 0) { alert("No questions found!"); return; }
-
+    studentIdRef.current = stu.id;
+  
+    const { data: qs } = await supabaseClient
+      .from("questions")
+      .select("*")
+      .eq("quiz_id", quizIdRef.current);
+  
+    if (!qs || qs.length === 0) {
+      alert("No questions found!");
+      return;
+    }
+  
+    setQuestionsCache(qs);
+  
     startQuizSectionRef.current?.classList.add("hidden");
     quizAttemptRef.current?.classList.remove("hidden");
-
+  
     if (attemptFormRef.current) {
       attemptFormRef.current.innerHTML = "";
       qs.forEach((q: any, i: number) => {
@@ -149,46 +176,71 @@ export default function QuizPage() {
         div.className = "border p-4 rounded-xl";
         div.innerHTML = `
           <p class="font-semibold mb-2">${i + 1}. ${q.question}</p>
-          ${["A","B","C","D"].map(o => `
+          ${["A", "B", "C", "D"]
+            .map(
+              (o) => `
             <label class="block mb-1">
-              <input type="radio" name="q${i}" value="${o}"> ${o}. ${q["option_"+o.toLowerCase()]}
-            </label>`).join("")}
+              <input type="radio" name="q${i}" value="${o}">
+              ${o}. ${q["option_" + o.toLowerCase()]}
+            </label>`
+            )
+            .join("")}
         `;
-        attemptFormRef.current?.appendChild(div);
+        attemptFormRef.current!.appendChild(div);
       });
     }
-
-    timeLeft = quizTimeValue * 60;
+  
+    timeLeftRef.current = quizTimeRefValue.current * 60;
     updateTimer();
-    timerInt = setInterval(updateTimer, 1000);
+    timerRefInt.current = setInterval(updateTimer, 1000);
   };
-
+  
   const updateTimer = () => {
     if (!timerRef.current) return;
-    if (timeLeft <= 0) { submitQuiz(); return; }
-    timerRef.current.textContent = Math.floor(timeLeft / 60) + ":" + String(timeLeft % 60).padStart(2,"0");
-    timeLeft--;
+  
+    if (timeLeftRef.current <= 0) {
+      submitQuiz();
+      return;
+    }
+  
+    timerRef.current.textContent =
+      Math.floor(timeLeftRef.current / 60) +
+      ":" +
+      String(timeLeftRef.current % 60).padStart(2, "0");
+  
+    timeLeftRef.current--;
   };
+  
 
   const submitQuiz = async () => {
-    clearInterval(timerInt);
+    if (timerRefInt.current) clearInterval(timerRefInt.current);
+  
     let score = 0;
+  
     questionsCache.forEach((q, i) => {
-      const a = document.querySelector<HTMLInputElement>(`input[name=q${i}]:checked`);
+      const a = document.querySelector<HTMLInputElement>(
+        `input[name=q${i}]:checked`
+      );
       if (a && a.value === q.correct_option) score++;
     });
-
-    await supabaseClient.from("results").insert([{
-      quiz_id: quizId,
-      student_id: studentId,
-      score,
-      percent: (score / questionsCache.length) * 100
-    }]);
-
+  
+    await supabaseClient.from("results").insert([
+      {
+        quiz_id: quizIdRef.current,
+        student_id: studentIdRef.current,
+        score,
+        percent: (score / questionsCache.length) * 100,
+      },
+    ]);
+  
     quizAttemptRef.current?.classList.add("hidden");
     resultSectionRef.current?.classList.remove("hidden");
-    if (scoreDisplayRef.current && studentNameRef.current) scoreDisplayRef.current.textContent = `${studentNameRef.current.value}, you scored ${score}/${questionsCache.length}`;
+  
+    if (scoreDisplayRef.current && studentNameRef.current) {
+      scoreDisplayRef.current.textContent = `${studentNameRef.current.value}, you scored ${score}/${questionsCache.length}`;
+    }
   };
+  
 
   // -------------------- VIEW ALL QUIZZES --------------------
   const viewAllQuizzes = async () => {
@@ -260,13 +312,21 @@ export default function QuizPage() {
 
   // -------------------- JSX --------------------
   return (
-    <div className="bg-amber-50 min-h-screen text-slate-800">
+    <div className="bg-white min-h-screen text-slate-800">
 
-      <nav className="bg-white border-b">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold">Fledge — Smart Quiz System</h1>
-          <button onClick={goBackToQuizCreation} className="bg-blue-600 text-white px-4 py-2 rounded">Back to Quiz Creation</button>
-        </div>
+    <nav className="bg-white h-16 shadow-md sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto h-full flex justify-between items-center px-4">
+          
+          
+          <div className="h-full flex items-center">
+            <div className="h-10 bg-white rounded-xl px-4 flex items-center overflow-hidden">
+              <img
+                src="/images/logo.png"
+                alt="Fledge Logo"
+                className="h-full w-auto object-contain scale-100"
+              />
+            </div>
+          </div></div>
       </nav>
 
       <section className="max-w-6xl mx-auto px-6 py-10 text-center">
@@ -291,10 +351,10 @@ export default function QuizPage() {
         <div id="questions" className="space-y-6"></div>
 
         <div className="flex gap-4 mt-8 flex-wrap">
-          <button onClick={addQuestion} className="bg-slate-800 text-white px-6 py-3 rounded-xl">Add MCQ</button>
-          <button onClick={generateQuiz} className="bg-amber-500 text-white px-6 py-3 rounded-xl">Generate Quiz & QR</button>
-          <button onClick={clearInputs} className="border px-6 py-3 rounded-xl">Clear Inputs</button>
-          <button onClick={viewAllQuizzes} className="bg-blue-600 text-white px-6 py-3 rounded-xl">View All Quizzes</button>
+          <button onClick={addQuestion} className="bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl">Add MCQ</button>
+          <button onClick={generateQuiz} className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl">Generate Quiz & QR</button>
+          <button onClick={clearInputs} className="bg-red-800 hover:bg-red-900 text-white px-6 py-3 rounded-xl">Clear Inputs</button>
+          <button onClick={viewAllQuizzes} className="bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl">View All Quizzes</button>
         </div>
 
         <p ref={teacherErrorRef} className="text-red-600 mt-4 hidden">Please fill all required fields correctly</p>
@@ -305,7 +365,7 @@ export default function QuizPage() {
         <h3 className="text-2xl font-semibold mb-6">Student Details</h3>
         <input ref={studentNameRef} className="border px-4 py-3 rounded-xl w-full mb-4" placeholder="Student Name" />
         <input ref={rollNoRef} className="border px-4 py-3 rounded-xl w-full mb-6" placeholder="Roll Number" />
-        <button onClick={startQuiz} className="bg-amber-500 text-white w-full py-4 rounded-xl font-semibold">Start Quiz</button>
+        <button onClick={startQuiz} className="bg-amber-600 hover:bg-amber-700 text-white w-full py-4 rounded-xl font-semibold">Start Quiz</button>
       </section>
 
       <section ref={quizAttemptRef} className="hidden max-w-6xl mx-auto px-6 pb-16">
