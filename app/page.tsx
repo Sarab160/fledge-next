@@ -71,7 +71,6 @@ export default function HomePage() {
             <a href="#about" className="hover:text-amber-600 transition">About Us</a>
             <a href="#features" className="hover:text-amber-600 transition">Features</a>
             <a href="#contact" className="hover:text-amber-600 transition">Contact</a>
-            <a href="#contact" className="hover:text-amber-600 transition">Contact</a>
           </div>
 
         </div>
