@@ -80,6 +80,7 @@ export default function HomePage() {
             set quiz time, and share with students or friends instantly.
           </p>
           <button
+          onClick={() => router.push("/quiz")}
             className="bg-amber-600 text-white px-10 py-3 md:px-12 md:py-4 rounded-xl
                        text-lg md:text-xl font-semibold
                        hover:bg-amber-700 hover:scale-105
