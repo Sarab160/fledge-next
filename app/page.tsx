@@ -67,7 +67,7 @@ export default function HomePage() {
           </div>
 
           <div className="space-x-6 font-semibold text-slate-800">
-            <a href="#home" className="hover:text-amber-600 transition">Home</a>
+            <a href="#home" className="hover:text-amber-600 transition">e</a>
             <a href="#about" className="hover:text-amber-600 transition">About Us</a>
             <a href="#features" className="hover:text-amber-600 transition">Features</a>
             <a href="#contact" className="hover:text-amber-600 transition">Contact</a>
