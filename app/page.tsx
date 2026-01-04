@@ -52,29 +52,46 @@ export default function HomePage() {
   return (
     
     <>
-      <nav className="bg-white h-16 shadow-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto h-full flex justify-between items-center px-4">
-          
-          
-          <div className="h-full flex items-center">
-            <div className="h-10 bg-white rounded-xl px-4 flex items-center overflow-hidden">
-              <img
-                src="/images/logo.png"
-                alt="Fledge Logo"
-                className="h-full w-auto object-contain scale-100"
-              />
-            </div>
-          </div>
+     <nav className="bg-white h-16 shadow-md sticky top-0 z-50">
+  <div className="max-w-6xl mx-auto h-full grid grid-cols-3 items-center px-4">
 
-          <div className="space-x-6 font-semibold text-slate-800">
-            <a href="#home" className="hover:text-amber-600 transition">Home</a>
-            <a href="#about" className="hover:text-amber-600 transition">About Us</a>
-            <a href="#features" className="hover:text-amber-600 transition">Features</a>
-            <a href="#contact" className="hover:text-amber-600 transition">Contact</a>
-          </div>
+    {/* Left Logo */}
+    <div className="flex items-center">
+      <div className="h-10 bg-white rounded-xl px-4 flex items-center overflow-hidden">
+        <img
+          src="/images/logo.png"
+          alt="Fledge Logo"
+          className="h-full w-auto object-contain"
+        />
+      </div>
+    </div>
 
-        </div>
-      </nav>
+    {/* Center Animated FLEDGE */}
+    <div className="flex justify-center relative">
+      <div className="relative flex items-center font-extrabold text-2xl tracking-widest text-slate-900">
+        <span className="letter">F</span>
+        <span className="letter">L</span>
+        <span className="letter">E</span>
+        <span className="letter">D</span>
+        <span className="letter">G</span>
+        <span className="letter">E</span>
+
+        {/* Arrow */}
+        <span className="arrow">➤</span>
+      </div>
+    </div>
+
+    {/* Right Links */}
+    <div className="space-x-6 font-semibold text-slate-800 text-right">
+      <a href="/" className="hover:text-amber-600 transition">Home</a>
+      <a href="#about" className="hover:text-amber-600 transition">About Us</a>
+      <a href="#features" className="hover:text-amber-600 transition">Features</a>
+      <a href="#contact" className="hover:text-amber-600 transition">Contact</a>
+    </div>
+
+  </div>
+</nav>
+
 
       
       <div className="absolute top-20 right-6 z-40">
@@ -92,7 +109,7 @@ export default function HomePage() {
           <div className="relative">
             <div
               onClick={() => setPanelOpen(!panelOpen)}
-              className="cursor-pointer w-12 h-12 rounded-full bg-amber-600 flex items-center justify-center text-white font-bold text-lg hover:scale-105 transition duration-300"
+              className="cursor-pointer w-12 h-6 mx-2 mt-2 mb-2 rounded-full bg-amber-600 flex items-center justify-center text-white font-bold text-lg hover:scale-105 transition duration-300"
             >
               F
             </div>
@@ -100,7 +117,7 @@ export default function HomePage() {
 
             {/* Side Panel */}
             <div
-              className={`fixed top-0 right-0 h-full w-64 bg-white shadow-2xl p-6 transition-transform duration-300 z-50 ${
+              className={`fixed top-0 right-0 h-60 w-64 bg-white shadow-2xl p-6 transition-transform duration-300 z-50 mt-30 ${
                 panelOpen ? "translate-x-0" : "translate-x-full"
               }`}
             >
@@ -147,7 +164,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-2 gap-0">
+      <div id="features" className="max-w-5xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-2 gap-0">
       
       <div className="bg-white rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-amber-200 max-w-md mx-auto">
         <img
@@ -205,13 +222,19 @@ export default function HomePage() {
     </div>
 
       
-      <div id="about" className="bg-white py-20 px-4 text-center">
-        <h2 className="text-4xl font-bold text-slate-900 mb-6">About Fledge</h2>
-        <p className="max-w-3xl mx-auto text-gray-700 text-lg">
-          Fledge is designed to simplify quiz creation for students, educators, and professionals.
-          Build interactive quizzes quickly, share them easily, and analyze results efficiently.
-        </p>
-      </div>
+    <div id="about" className="bg-white py-20 px-6 text-center">
+  <h2 className="text-4xl font-bold text-slate-900 mb-6">
+    About Fledge
+  </h2>
+
+  <p className="max-w-4xl mx-auto text-slate-700 text-lg leading-relaxed">
+    Fledge is a smart learning platform built to simplify quiz creation for students,
+    educators, and professionals. Create interactive quizzes in minutes, share them
+    effortlessly, analyze results instantly, and leverage AI-powered predictions to
+    gain insights into student performance.
+  </p>
+</div>
+
 
       <footer id="contact" className="bg-slate-900 text-slate-300 text-center py-8 mt-20">
         <p>© 2025 Fledge — Smart Quiz Builder</p>

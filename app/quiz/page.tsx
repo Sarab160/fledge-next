@@ -403,21 +403,43 @@ if (error) {
   return (
     <div className="bg-white min-h-screen text-slate-800">
 
-    <nav className="bg-white h-16 shadow-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto h-full flex justify-between items-center px-4">
-          
-          
-          <div className="h-full flex items-center">
-            <div className="h-10 bg-white rounded-xl px-4 flex items-center overflow-hidden">
-              <img
-                src="/images/logo.png"
-                alt="Fledge Logo"
-                className="h-full w-auto object-contain scale-100"
-              />
-            </div>
-          </div></div>
-      </nav>
+<nav className="bg-white h-16 shadow-md sticky top-0 z-50">
+  <div className="max-w-6xl mx-auto h-full grid grid-cols-3 items-center px-4">
 
+    {/* Left Logo */}
+    <div className="flex items-center">
+      <div className="h-10 bg-white rounded-xl px-4 flex items-center overflow-hidden">
+        <img
+          src="/images/logo.png"
+          alt="Fledge Logo"
+          className="h-full w-auto object-contain"
+        />
+      </div>
+    </div>
+
+    {/* Center Animated FLEDGE */}
+    <div className="flex justify-center relative">
+      <div className="relative flex items-center font-extrabold text-2xl tracking-widest text-slate-900">
+        <span className="letter">F</span>
+        <span className="letter">L</span>
+        <span className="letter">E</span>
+        <span className="letter">D</span>
+        <span className="letter">G</span>
+        <span className="letter">E</span>
+
+        {/* Arrow */}
+        <span className="arrow">➤</span>
+      </div>
+    </div>
+
+    {/* Right Links */}
+    <div className="space-x-6 font-semibold text-slate-800 text-right">
+      <a href="/" className="hover:text-amber-600 transition">Home</a>
+      
+    </div>
+
+  </div>
+</nav>
       <section className="max-w-6xl mx-auto px-6 py-10 text-center">
         <h2 className="text-4xl font-extrabold mb-3">Quiz Builder & Assessment</h2>
       </section>
@@ -472,6 +494,7 @@ if (error) {
       </section>
 
       <section ref={allQuizzesPageRef} className="hidden max-w-6xl mx-auto px-6 pb-16">
+        <button onClick={goBackToQuizCreation} className="mb-6 bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl">← Back</button>
         <h3 className="text-2xl font-semibold mb-4">All Quizzes</h3>
         <div ref={allQuizzesListRef} className="space-y-4"></div>
         <div ref={quizResultsRef} className="hidden mt-6">
