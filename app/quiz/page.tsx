@@ -12,29 +12,9 @@ const supabaseClient = createClient(
 );
 
 export default function QuizPage() {
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const quizId = urlParams.get("id");
-  
-    // If QR code scanned (means ?id= present)
-    if (quizId) {
-      quizIdRef.current = quizId;
-  
-      // Hide teacher section, show student name form
-      teacherSectionRef.current?.classList.add("hidden");
-      startQuizSectionRef.current?.classList.remove("hidden");
-  
-      // Load quiz details for timer, etc.
-      supabaseClient
-        .from("quizze")
-        .select("*")
-        .eq("id", quizId)
-        .single()
-        .then(({ data }) => {
-          if (data) quizTimeRefValue.current = data.time;
-        });
-    }
-  }, []);
+  // 👇 Runs when page loads
+
+
   
   const quizNameRef = useRef<HTMLInputElement>(null);
   const quizTimeRef = useRef<HTMLInputElement>(null);
@@ -65,6 +45,38 @@ const quizTimeRefValue = useRef<number>(0);
 const studentIdRef = useRef<string | null>(null);
 const timerRefInt = useRef<NodeJS.Timeout | null>(null);
 const timeLeftRef = useRef<number>(0);
+
+useEffect(() => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const quizId = urlParams.get("id");
+
+  if (quizId) {
+    quizIdRef.current = quizId;
+
+    // Hide teacher creation
+    teacherSectionRef.current?.classList.add("hidden");
+    // Show student input
+    startQuizSectionRef.current?.classList.remove("hidden");
+
+    // Load quiz time for countdown
+    supabaseClient
+      .from("quizze")
+      .select("*")
+      .eq("id", quizId)
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          console.error("Quiz not found:", error.message);
+          alert("Invalid or expired quiz link!");
+          return;
+        }
+        if (data) {
+          quizTimeRefValue.current = data.time;
+          console.log("Quiz loaded:", data.name);
+        }
+      });
+  }
+}, []);
 
   // -------------------- TEACHER FUNCTIONS --------------------
   const addQuestion = () => {
