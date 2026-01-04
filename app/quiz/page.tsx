@@ -144,9 +144,10 @@ const timeLeftRef = useRef<number>(0);
         qrCodeRef.current.appendChild(canvas);
         QRCode.toCanvas(
           canvas,
-          `${window.location.origin}${window.location.pathname}?id=${quizIdRef.current}`,
+          `https://fledgev.vercel.app/?id=${quizIdRef.current}`,
           { width: 220 }
         );
+        
         
       }
 
