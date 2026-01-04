@@ -53,12 +53,11 @@ useEffect(() => {
   if (quizId) {
     quizIdRef.current = quizId;
 
-    // Hide teacher creation
+    // Hide teacher section, show student form
     teacherSectionRef.current?.classList.add("hidden");
-    // Show student input
     startQuizSectionRef.current?.classList.remove("hidden");
 
-    // Load quiz time for countdown
+    // Fetch quiz time
     supabaseClient
       .from("quizze")
       .select("*")
@@ -66,18 +65,16 @@ useEffect(() => {
       .single()
       .then(({ data, error }) => {
         if (error) {
-          console.error("Quiz not found:", error.message);
-          alert("Invalid or expired quiz link!");
+          alert("Invalid quiz link!");
           return;
         }
-        if (data) {
-          quizTimeRefValue.current = data.time;
-          console.log("Quiz loaded:", data.name);
-        }
+        if (data) quizTimeRefValue.current = data.time;
       });
+  } else {
+    // If no ID, show teacher section
+    teacherSectionRef.current?.classList.remove("hidden");
   }
 }, []);
-
   // -------------------- TEACHER FUNCTIONS --------------------
   const addQuestion = () => {
     const div = document.createElement("div");
@@ -156,7 +153,7 @@ useEffect(() => {
         qrCodeRef.current.appendChild(canvas);
         QRCode.toCanvas(
           canvas,
-          `https://fledgev.vercel.app/?id=${quizIdRef.current}`,
+          `https://fledgev.vercel.app/quiz?id=${quizIdRef.current}`, // <-- /quiz route
           { width: 220 }
         );
         
@@ -183,15 +180,15 @@ useEffect(() => {
     }
   
     const { data: stu } = await supabaseClient
-      .from("students")
-      .insert([
-        {
-          name: studentNameRef.current.value,
-          roll_no: rollNoRef.current.value,
-        },
-      ])
-      .select()
-      .single();
+  .from("students")
+  .insert([{
+    name: studentNameRef.current.value,
+    roll_no: rollNoRef.current.value,
+    quiz_id: quizIdRef.current  // <-- link student to quiz
+  }])
+  .select()
+  .single();
+
   
     if (!stu) return;
     studentIdRef.current = stu.id;
