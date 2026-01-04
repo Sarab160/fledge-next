@@ -153,7 +153,7 @@ useEffect(() => {
         qrCodeRef.current.appendChild(canvas);
         QRCode.toCanvas(
           canvas,
-          `https://fledgeve.vercel.app/quiz?id=${quizIdRef.current}`, // <-- /quiz route
+          `https://fledgevee.vercel.app/quiz?id=${quizIdRef.current}`, // <-- /quiz route
           { width: 220 }
         );
         
@@ -169,6 +169,17 @@ useEffect(() => {
 
   // -------------------- STUDENT FUNCTIONS --------------------
   const startQuiz = async () => {
+
+    console.log("START QUIZ CLICKED", {
+      quizId: quizIdRef.current,
+      time: quizTimeRefValue.current
+    });
+    
+    if (!quizTimeRefValue.current || quizTimeRefValue.current <= 0) {
+      alert("Quiz is still loading. Please wait 1–2 seconds and try again.");
+      return;
+    }
+    
     if (!studentNameRef.current?.value || !rollNoRef.current?.value) {
       alert("Enter student details");
       return;
@@ -179,15 +190,21 @@ useEffect(() => {
       return;
     }
   
-    const { data: stu } = await supabaseClient
+    const { data: stu, error } = await supabaseClient
   .from("students")
   .insert([{
     name: studentNameRef.current.value,
-    roll_no: rollNoRef.current.value,
-    quiz_id: quizIdRef.current  // <-- link student to quiz
+    roll_no: rollNoRef.current.value
   }])
   .select()
   .single();
+
+if (error) {
+  console.error("Student insert error:", error.message);
+  alert(error.message);
+  return;
+}
+
 
   
     if (!stu) return;
@@ -206,8 +223,11 @@ useEffect(() => {
     setQuestionsCache(qs);
   
     startQuizSectionRef.current?.classList.add("hidden");
-    quizAttemptRef.current?.classList.remove("hidden");
-  
+    if (quizAttemptRef.current) {
+      quizAttemptRef.current.classList.remove("hidden");
+      quizAttemptRef.current.style.display = "block";
+    }
+      
     if (attemptFormRef.current) {
       attemptFormRef.current.innerHTML = "";
       qs.forEach((q: any, i: number) => {
@@ -228,8 +248,9 @@ useEffect(() => {
         attemptFormRef.current!.appendChild(div);
       });
     }
-  
-    timeLeftRef.current = quizTimeRefValue.current * 60;
+
+    timeLeftRef.current = Math.max(quizTimeRefValue.current, 1) * 60;
+
     updateTimer();
     timerRefInt.current = setInterval(updateTimer, 1000);
   };
@@ -252,33 +273,62 @@ useEffect(() => {
   
 
   const submitQuiz = async () => {
-    if (timerRefInt.current) clearInterval(timerRefInt.current);
+    // Stop timer if running
+    if (timerRefInt.current) {
+      clearInterval(timerRefInt.current);
+      timerRefInt.current = null;
+    }
+  
+    if (!questionsCache.length) {
+      alert("No questions found.");
+      return;
+    }
   
     let score = 0;
   
+    // Calculate score
     questionsCache.forEach((q, i) => {
-      const a = document.querySelector<HTMLInputElement>(
-        `input[name=q${i}]:checked`
+      const selected = document.querySelector<HTMLInputElement>(
+        `input[name="q${i}"]:checked`
       );
-      if (a && a.value === q.correct_option) score++;
+      if (selected && selected.value === q.correct_option) {
+        score++;
+      }
     });
   
-    await supabaseClient.from("results").insert([
-      {
-        quiz_id: quizIdRef.current,
-        student_id: studentIdRef.current,
-        score,
-        percent: (score / questionsCache.length) * 100,
-      },
-    ]);
+    const percent = Math.round((score / questionsCache.length) * 100);
   
-    quizAttemptRef.current?.classList.add("hidden");
-    resultSectionRef.current?.classList.remove("hidden");
+    // Save result to Supabase
+    const { error } = await supabaseClient.from("results").insert([{
+      quiz_id: quizIdRef.current,
+      student_id: studentIdRef.current,
+      score,
+      percent
+    }]);
   
+    if (error) {
+      alert("Failed to submit result: " + error.message);
+      return;
+    }
+  
+    // Hide the quiz + timer completely
+    if (quizAttemptRef.current) {
+      quizAttemptRef.current.style.display = "none"; // hide
+    }
+  
+    // Show only the result section
+    if (resultSectionRef.current) {
+      resultSectionRef.current.style.display = "block";
+    }
+  
+    // Display score text
     if (scoreDisplayRef.current && studentNameRef.current) {
-      scoreDisplayRef.current.textContent = `${studentNameRef.current.value}, you scored ${score}/${questionsCache.length}`;
+      scoreDisplayRef.current.textContent =
+        `${studentNameRef.current.value}, you scored ${score}/${questionsCache.length} (${percent}%)`;
     }
   };
+  
+  
   
 
   // -------------------- VIEW ALL QUIZZES --------------------
@@ -413,7 +463,7 @@ useEffect(() => {
           <span ref={timerRef} className="font-bold text-red-600"></span>
         </div>
         <div ref={attemptFormRef} className="space-y-6"></div>
-        <button onClick={submitQuiz} className="mt-8 bg-slate-800 text-white px-8 py-3 rounded-xl">Submit Quiz</button>
+        <button onClick={submitQuiz} className="mt-8 bg-slate-800 hover:bg-sky-900 text-white px-8 py-3 rounded-xl">Submit Quiz</button>
       </section>
 
       <section ref={resultSectionRef} className="hidden max-w-6xl mx-auto px-6 pb-16 text-center">
