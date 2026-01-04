@@ -12,6 +12,30 @@ const supabaseClient = createClient(
 );
 
 export default function QuizPage() {
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const quizId = urlParams.get("id");
+  
+    // If QR code scanned (means ?id= present)
+    if (quizId) {
+      quizIdRef.current = quizId;
+  
+      // Hide teacher section, show student name form
+      teacherSectionRef.current?.classList.add("hidden");
+      startQuizSectionRef.current?.classList.remove("hidden");
+  
+      // Load quiz details for timer, etc.
+      supabaseClient
+        .from("quizze")
+        .select("*")
+        .eq("id", quizId)
+        .single()
+        .then(({ data }) => {
+          if (data) quizTimeRefValue.current = data.time;
+        });
+    }
+  }, []);
+  
   const quizNameRef = useRef<HTMLInputElement>(null);
   const quizTimeRef = useRef<HTMLInputElement>(null);
   const studentNameRef = useRef<HTMLInputElement>(null);
@@ -118,7 +142,12 @@ const timeLeftRef = useRef<number>(0);
         qrCodeRef.current.innerHTML = "";
         const canvas = document.createElement("canvas");
         qrCodeRef.current.appendChild(canvas);
-        QRCode.toCanvas(canvas, `${location.origin}${location.pathname}?id=${quizIdRef.current}`, { width: 220 });
+        QRCode.toCanvas(
+          canvas,
+          `${window.location.origin}${window.location.pathname}?id=${quizIdRef.current}`,
+          { width: 220 }
+        );
+        
       }
 
       alert("Quiz generated successfully!");
